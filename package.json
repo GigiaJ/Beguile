@@ -1,0 +1,59 @@
+{
+  "publisher": "jaggar",
+  "name": "beguile",
+  "displayName": "Beguile",
+  "description": "Pleasant Guile in VS Code",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.107.18605"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onLanguage:scheme",
+    "onCommand:beguile.formatDocument"
+  ],
+
+  "main": "./out/extension.js",
+  "contributes": {
+    "languages": [
+      {
+        "id": "scheme",
+        "extensions": [".scm", ".ss"],
+        "aliases": ["Scheme"]
+      }
+    ],
+    "commands": [
+      {
+        "command": "beguile.formatDocument",
+        "title": "Beguile: Format Document"
+      }
+    ],
+    "configurationDefaults": {
+      "[scheme]": {
+        "editor.defaultFormatter": "jaggar.beguile",
+        "editor.formatOnSave": true
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "pnpm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "pnpm run compile && pnpm run lint",
+    "lint": "eslint src",
+    "test": "vscode-test"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.108.1",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "22.x",
+    "typescript-eslint": "^8.52.0",
+    "eslint": "^9.39.2",
+    "typescript": "^5.9.3",
+    "@vscode/test-cli": "^0.0.12",
+    "@vscode/test-electron": "^2.5.2"
+  },
+  "packageManager": "pnpm@10.28.0+sha512.05df71d1421f21399e053fde567cea34d446fa02c76571441bfc1c7956e98e363088982d940465fd34480d4d90a0668bc12362f8aa88000a64e83d0b0e47be48"
+}
