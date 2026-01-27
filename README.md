@@ -51,5 +51,7 @@ In the future, I'll likely rewrite this into Clojurescript. Typescript was just 
 - In Clojurescript (so easier to expand on and more familiar syntax to the main audience of this plugin)
 - Add evaluation for Guix GExpressions (this may make more sense splitting out and making an add-on plugin for)
 - Clojure-like usage examples in the hover behavior would be amazing, but I don't think Guile has the same infrastructure in place to easily do so.
+- Pop-ups for if the server crashed
+- Dynamic port allocation for the server
 
 For now though, this is the most complete Guile writing experience for VS Code.

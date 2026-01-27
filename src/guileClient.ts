@@ -23,7 +23,7 @@ export class GuileClient {
   private buffer = "";
   private retryTimer: NodeJS.Timeout | undefined;
 
-  constructor() {
+  constructor(private port: number) {
     this.connect();
   }
 
@@ -70,7 +70,7 @@ export class GuileClient {
     });
 
     try {
-      this.client.connect(37146, '127.0.0.1');
+      this.client.connect(this.port, '127.0.0.1');
     } catch (e: any) {
       console.error("Synchronous connect error:", e.message);
       if (!this.retryTimer) {
