@@ -85,10 +85,12 @@ export class LispParser {
             }
 
             if (char === ')' || char === ']') {
-                if (current.parent) {
+                if (current.type === NodeType.List && current.parent) {
                     current.end = i + 1;
                     current.closeChar = char;
                     current = current.parent;
+                } else if (current.type === NodeType.Root) {
+                    console.warn(`Unmatched closing paren at position ${i}`);
                 }
                 i++;
                 continue;
@@ -111,6 +113,12 @@ export class LispParser {
                 children: [],
                 parent: current
             });
+        }
+
+        while (current.type !== NodeType.Root && current.parent) {
+            console.warn(`Unclosed list at position ${current.start}, auto-closing at end of file`);
+            current.end = text.length;
+            current = current.parent;
         }
 
         return root;
