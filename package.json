@@ -2,7 +2,7 @@
   "name": "beguile",
   "displayName": "Beguile",
   "description": "Full Feature Guile Scheme VS Code Extension",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "publisher": "GigiaJ",
   "repository": {
     "type": "git",
