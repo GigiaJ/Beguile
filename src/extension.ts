@@ -17,8 +17,10 @@ export async function activate(context: vscode.ExtensionContext) {
   console.log("Beguile activated");
 
   server = new GuileServer();
-  let port = await server.start(context.extensionPath)
-  client = new GuileClient(port);
+  const port = await server.start(context.extensionPath);
+  if (port > 0) {
+    client = new GuileClient(port);
+  }
   const rainbows = new RainbowHighlighter();
   const repl = new Repl(client);
 
@@ -83,6 +85,7 @@ export async function activate(context: vscode.ExtensionContext) {
       vscode.window.showInformationMessage("Beguile Server Restarted");
     }),
 
+
     vscode.languages.registerCompletionItemProvider(
       "scheme", new SchemeCompletionProvider(client)
     ),
@@ -131,12 +134,12 @@ export async function activate(context: vscode.ExtensionContext) {
       const editor = vscode.window.activeTextEditor;
       if (editor) Paredit.selectBackwardSexp(editor);
     }),
-    vscode.commands.registerCommand("beguile.tabulateLine", () => {
-      const editor = vscode.window.activeTextEditor;
-      if (editor) {
-        Formatter.indentCurrentLine(editor);
-      }
-    })
+    //vscode.commands.registerCommand("beguile.tabulateLine", () => {
+    //  const editor = vscode.window.activeTextEditor;
+    //  if (editor) {
+    //    Formatter.indentCurrentLine(editor);
+    //  }
+    //})
   );
 
   if (vscode.window.activeTextEditor && vscode.window.activeTextEditor.document.languageId === 'scheme') {
