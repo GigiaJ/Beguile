@@ -28,6 +28,15 @@ export class GuileClient {
   }
 
   private connect() {
+
+    if (!this.port || isNaN(this.port)) {
+      console.warn("Beguile: Waiting for valid port...");
+      if (!this.retryTimer) {
+        this.retryTimer = setTimeout(() => this.connect(), 2000);
+      }
+      return;
+    }
+
     if (this.retryTimer) {
       clearTimeout(this.retryTimer);
       this.retryTimer = undefined;
