@@ -238,21 +238,30 @@
     (setsockopt s SOL_SOCKET SO_REUSEADDR 1)
     (bind s AF_INET INADDR_ANY port)
     (listen s 5)
+    
+    (display "(Beguile Server Ready)")
+    (newline)
+    (force-output) ;; Critical: Flush the buffer!
+
     (log-msg (format #f "Listening on port ~a..." port))
+    
     (while #t
-      (let* ((client (accept s)) (port (car client)))
+      (let* ((client (accept s)) 
+             (client-port (car client)))
         (catch #t
           (lambda ()
             (let loop ()
-              (let ((line (read-line port)))
+              (let ((line (read-line client-port)))
                 (unless (eof-object? line)
                   (let* ((req (json-string->scm line))
                          (resp (handle-message req))
                          (resp-str (scm->json-string resp)))
-                    (display resp-str port) (newline port) (force-output port) (loop))))))
-          (lambda (key . args) (log-msg (format #f "Crash: ~a ~a" key args))))
-        (close port)))))
+                    (display resp-str client-port) 
+                    (newline client-port) 
+                    (force-output client-port) 
+                    (loop))))))
+          (lambda (key . args) 
+            (log-msg (format #f "Crash: ~a ~a" key args))))
+        (close client-port)))))
         
 (run-server (parse-port))
-
-(run-server port)
