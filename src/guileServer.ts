@@ -26,19 +26,31 @@ export class GuileServer {
         this.outputChannel.show(true);
     }
 
-    public async start(extensionPath: string) {
-        if (this.isRunning) return;
+    public async start(extensionPath: string): Promise<number> {
+        if (this.isRunning) return -1;
+        const serverPath = path.join(extensionPath, "guile/server.scm");
 
-        const port = await findFreePort();
-        this.port = port;
+        this.process = cp.spawn("guile", [serverPath], { cwd: extensionPath });
+        this.isRunning = true;
 
-        const serverPath = path.join(extensionPath, 'guile/server.scm');
+        const portPromise = new Promise<number>((resolve) => {
+            this.process!.stderr?.on("data", (data) => {
+                const text = data.toString().trim();
+                this.outputChannel.appendLine(text);
 
-        this.outputChannel.appendLine(`Spawning: guile ${serverPath} --port ${port}`);
-
-        this.process = cp.spawn("guile", [serverPath, "--port", String(port)], {
-            cwd: extensionPath
+                const m = text.match(/^\[Server\]\s+(\d+)$/);
+                if (m) {
+                    const port = Number(m[1]);
+                    this.port = port;
+                    resolve(port);
+                }
+            });
         });
+
+        this.port = await portPromise;
+
+        console.log("Guile server running on port", this.port);
+
 
         this.isRunning = true;
 
@@ -65,6 +77,7 @@ export class GuileServer {
             vscode.window.showErrorMessage(`Beguile: Could not start Guile process. Is 'guile' in your PATH?`);
             this.isRunning = false;
         });
+        return this.port;
     }
 
     public stop() {

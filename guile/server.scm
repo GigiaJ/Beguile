@@ -222,23 +222,13 @@
       ("beguile/definition" (make-response id (get-definition-location (assoc-ref params "symbol") (or (assoc-ref params "code") "") (vector->list (assoc-ref params "context")))))
       (_ (make-response id "Unknown Method")))))
 
-(define (parse-port)
-  (match (command-line)
-    ((_ _ "--port" p)
-     (string->number p))
-
-    ((_ _ p)
-     (string->number p))
-
-    (_
-     (error "No port provided to server.scm"))))
-
-(define (run-server port)
+(define (run-server)
   (let ((s (socket PF_INET SOCK_STREAM 0)))
     (setsockopt s SOL_SOCKET SO_REUSEADDR 1)
-    (bind s AF_INET INADDR_ANY port)
+    (bind s AF_INET INADDR_ANY 0)
     (listen s 5)
-    (log-msg (format #f "Listening on port ~a..." port))
+    (let* ((addr (getsockname s)) (port (sockaddr:port addr)))
+    (log-msg (format #f "~a" port))
     (while #t
       (let* ((client (accept s)) (port (car client)))
         (catch #t
@@ -251,6 +241,6 @@
                          (resp-str (scm->json-string resp)))
                     (display resp-str port) (newline port) (force-output port) (loop))))))
           (lambda (key . args) (log-msg (format #f "Crash: ~a ~a" key args))))
-        (close port)))))
+        (close port))))))
         
-(run-server (parse-port))
+(run-server)

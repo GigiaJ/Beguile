@@ -13,12 +13,12 @@ import { Repl } from "./repl";
 let server: GuileServer;
 let client: GuileClient;
 
-export function activate(context: vscode.ExtensionContext) {
+export async function activate(context: vscode.ExtensionContext) {
   console.log("Beguile activated");
 
   server = new GuileServer();
-  server.start(context.extensionPath);
-  client = new GuileClient(server.port);
+  let port = await server.start(context.extensionPath)
+  client = new GuileClient(port);
   const rainbows = new RainbowHighlighter();
   const repl = new Repl(client);
 
