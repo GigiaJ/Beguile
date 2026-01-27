@@ -1,14 +1,18 @@
 {
-  "publisher": "jaggar",
   "name": "beguile",
   "displayName": "Beguile",
-  "description": "Pleasant Guile in VS Code",
+  "description": "Full Feature Guile Scheme VS Code Extension",
   "version": "0.0.1",
+  "publisher": "GigiaJ",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/GigiaJ/beguile"
+  },
   "engines": {
-    "vscode": "^1.107.18605"
+    "vscode": "^1.96.0"
   },
   "categories": [
-    "Other"
+    "Programming Languages"
   ],
   "activationEvents": [
     "onLanguage:scheme",
@@ -142,7 +146,7 @@
     ],
     "configurationDefaults": {
       "[scheme]": {
-        "editor.defaultFormatter": "jaggar.beguile",
+        "editor.defaultFormatter": "GigiaJ.beguile",
         "editor.formatOnSave": true,
         "editor.wordSeparators": "`()[]{}|;\\\",'"
       }
@@ -157,7 +161,7 @@
     "test": "vscode-test"
   },
   "devDependencies": {
-    "@types/vscode": "^1.108.1",
+    "@types/vscode": "^1.96.0",
     "@types/mocha": "^10.0.10",
     "@types/node": "22.x",
     "typescript-eslint": "^8.52.0",
