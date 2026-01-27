@@ -26,7 +26,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
   const updateIndentRules = (doc: vscode.TextDocument) => {
     if (doc.languageId === 'scheme') {
-      Formatter.updateRules(client, doc);
+      Formatter.updateRules(client);
     }
   };
 
