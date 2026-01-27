@@ -3,3 +3,6 @@ dist
 node_modules
 .vscode-test/
 *.vsix
+.clj-kondo
+.shadow-cljs
+.lsp
