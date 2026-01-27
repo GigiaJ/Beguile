@@ -1,57 +1,143 @@
-import * as cp from "child_process";
-import * as path from "path";
-import * as readline from "readline";
+import * as net from 'net';
+import * as vscode from 'vscode';
+
+interface JsonRpcRequest {
+  jsonrpc: "2.0";
+  id: number;
+  method: string;
+  params: any;
+}
+
+interface JsonRpcResponse {
+  jsonrpc: "2.0";
+  id: number;
+  result?: any;
+  error?: { code: number; message: string };
+}
 
 export class GuileClient {
-  private proc: cp.ChildProcessWithoutNullStreams;
-  private rl: readline.Interface;
-  private responseQueue: ((val: any) => void)[] = [];
+  private client: net.Socket | null = null;
+  private requestCounter = 0;
+  private pendingRequests = new Map<number, (value: any) => void>();
+  private isConnected = false;
+  private buffer = "";
+  private retryTimer: NodeJS.Timeout | undefined;
 
   constructor() {
-    const serverPath = path.join(__dirname, "..", "guile", "server.scm");
-
-    this.proc = cp.spawn("guile", ["--no-auto-compile", serverPath], {
-      cwd: path.join(__dirname, ".."),
-      env: { ...process.env, GUILE_AUTO_COMPILE: "0" }
-    });
-
-    this.rl = readline.createInterface({
-      input: this.proc.stdout,
-      terminal: false
-    });
-
-    this.rl.on("line", (line) => {
-      const resolve = this.responseQueue.shift();
-      if (resolve) {
-        try {
-          resolve(JSON.parse(line));
-        } catch (e) {
-          console.error("Failed to parse Guile JSON:", line);
-        }
-      }
-    });
-
-    this.proc.stderr.on("data", d => console.error("Guile stderr:", d.toString()));
+    this.connect();
   }
 
-  async send<T>(msg: [string, any]): Promise<T> {
-    return new Promise((resolve) => {
-      this.responseQueue.push(resolve);
-      this.proc.stdin.write(JSON.stringify(msg) + "\n");
-    });
-  }
-  async format(code: string): Promise<string> {
-    const response = await this.send<any>(["format", code]);
-
-    if (response?.status === "ok" && typeof response.result === "string") {
-      if (response.result.trim().length === 0 && code.trim().length > 0) {
-        console.warn("Guile returned empty string for non-empty input. Aborting format.");
-        return code;
-      }
-      return response.result;
+  private connect() {
+    if (this.retryTimer) {
+      clearTimeout(this.retryTimer);
+      this.retryTimer = undefined;
     }
 
-    console.error("Guile format failed or returned invalid JSON:", response);
-    return code;
+    if (this.client) {
+      this.client.destroy();
+      this.client.removeAllListeners();
+      this.client = null;
+    }
+
+    this.client = new net.Socket();
+
+    this.client.on('connect', () => {
+      console.log('Beguile: Connected to Guile Server');
+      this.isConnected = true;
+      this.buffer = "";
+    });
+
+    this.client.on('data', (data) => this.handleData(data));
+
+    this.client.on('error', (err) => {
+      if (this.isConnected) {
+        console.warn(`Beguile Socket Error: ${err.message}`);
+      }
+    });
+
+    this.client.on('close', () => {
+      if (this.isConnected) {
+        console.log('Beguile: Server disconnected');
+        this.isConnected = false;
+      }
+
+      if (!this.retryTimer) {
+        this.retryTimer = setTimeout(() => {
+          this.retryTimer = undefined;
+          this.connect();
+        }, 2000);
+      }
+    });
+
+    try {
+      this.client.connect(37146, '127.0.0.1');
+    } catch (e: any) {
+      console.error("Synchronous connect error:", e.message);
+      if (!this.retryTimer) {
+        this.retryTimer = setTimeout(() => this.connect(), 2000);
+      }
+    }
+  }
+
+  private handleData(data: Buffer) {
+    this.buffer += data.toString();
+    let newlineIndex: number;
+    while ((newlineIndex = this.buffer.indexOf('\n')) !== -1) {
+      const line = this.buffer.substring(0, newlineIndex).trim();
+      this.buffer = this.buffer.substring(newlineIndex + 1);
+
+      if (!line) continue;
+      try {
+        const response = JSON.parse(line) as JsonRpcResponse;
+        this.handleResponse(response);
+      } catch (e) {
+        console.error("Beguile: Failed to parse JSON:", line);
+      }
+    }
+  }
+
+  private handleResponse(response: JsonRpcResponse) {
+    if (this.pendingRequests.has(response.id)) {
+      const resolve = this.pendingRequests.get(response.id);
+      this.pendingRequests.delete(response.id);
+      if (response.error) {
+        console.error(`Guile Error (${response.error.code}):`, response.error.message);
+        if (resolve) resolve(null);
+      } else if (resolve) {
+        resolve(response.result);
+      }
+    }
+  }
+
+  public async sendRequest(method: string, params: any = {}): Promise<any> {
+    if (!this.isConnected || !this.client) return null;
+
+    this.requestCounter++;
+    const id = this.requestCounter;
+    const req: JsonRpcRequest = { jsonrpc: "2.0", id, method, params };
+
+    return new Promise((resolve) => {
+      this.pendingRequests.set(id, resolve);
+      this.client?.write(JSON.stringify(req) + "\n");
+    });
+  }
+
+  public async getIndentInfo(symbol: string) {
+    return this.sendRequest("beguile/getIndent", { symbol });
+  }
+
+  public async getCompletions(prefix: string): Promise<string[]> {
+    return this.sendRequest("beguile/completion", { prefix });
+  }
+
+  public async getDocs(symbol: string, code: string, context: string[]): Promise<string> {
+    return this.sendRequest("beguile/hover", { symbol, code, context });
+  }
+  public async eval(code: string, moduleName: string | null): Promise<string> {
+    return this.sendRequest("beguile/eval", { code, module: moduleName });
+  }
+
+  public async getDefinition(symbol: string, code: string, context: string[]): Promise<any> {
+    return this.sendRequest("beguile/definition", { symbol, code, context });
   }
 }
