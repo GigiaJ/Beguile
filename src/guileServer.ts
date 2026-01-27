@@ -3,17 +3,6 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 import * as net from 'net';
 
-export async function findFreePort(): Promise<number> {
-    return new Promise((resolve, reject) => {
-        const server = net.createServer();
-        server.listen(0, () => {
-            const port = (server.address() as net.AddressInfo).port;
-            server.close(() => resolve(port));
-        });
-        server.on('error', reject);
-    });
-}
-
 
 export class GuileServer {
     private process: cp.ChildProcess | null = null;
@@ -30,24 +19,23 @@ export class GuileServer {
         if (this.isRunning) return -1;
         const serverPath = path.join(extensionPath, "guile/server.scm");
 
-        this.process = cp.spawn("guile", [serverPath], { cwd: extensionPath });
-        this.isRunning = true;
-
-        const portPromise = new Promise<number>((resolve) => {
-            this.process!.stderr?.on("data", (data) => {
-                const text = data.toString().trim();
-                this.outputChannel.appendLine(text);
-
-                const m = text.match(/^\[Server\]\s+(\d+)$/);
-                if (m) {
-                    const port = Number(m[1]);
-                    this.port = port;
-                    resolve(port);
-                }
+        const portPromise = new Promise<number>((resolve, reject) => {
+            const server = net.createServer();
+            server.listen(0, () => {
+                const port = (server.address() as net.AddressInfo).port;
+                server.close(() => resolve(port));
             });
+            server.on('error', reject);
         });
 
         this.port = await portPromise;
+
+        this.outputChannel.appendLine(`Spawning: guile ${serverPath} --port ${this.port}`);
+
+        this.process = cp.spawn("guile", [serverPath, "--port", String(this.port)], {
+            cwd: extensionPath
+        });
+        this.isRunning = true;
 
         console.log("Guile server running on port", this.port);
 
