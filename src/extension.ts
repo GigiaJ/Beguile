@@ -18,7 +18,7 @@ export function activate(context: vscode.ExtensionContext) {
 
   server = new GuileServer();
   server.start(context.extensionPath);
-  client = new GuileClient();
+  client = new GuileClient(server.port);
   const rainbows = new RainbowHighlighter();
   const repl = new Repl(client);
 
