@@ -2,7 +2,7 @@
   "name": "beguile",
   "displayName": "Beguile",
   "description": "Full Feature Guile Scheme VS Code Extension",
-  "version": "0.0.3",
+  "version": "0.0.5",
   "publisher": "GigiaJ",
   "repository": {
     "type": "git",
@@ -142,6 +142,11 @@
         "key": "ctrl+enter",
         "mac": "cmd+enter",
         "when": "editorTextFocus && editorLangId == scheme"
+      },
+      {
+        "command": "beguile.tabulateLine",
+        "key": "tab",
+        "when": "editorTextFocus && editorLangId == 'scheme' && !hasOtherSuggestions"
       }
     ],
     "configurationDefaults": {
