@@ -83,7 +83,6 @@ export async function activate(context: vscode.ExtensionContext) {
       vscode.window.showInformationMessage("Beguile Server Restarted");
     }),
 
-
     vscode.languages.registerCompletionItemProvider(
       "scheme", new SchemeCompletionProvider(client)
     ),
@@ -131,6 +130,12 @@ export async function activate(context: vscode.ExtensionContext) {
     vscode.commands.registerCommand('beguile.selectBackwardSexp', () => {
       const editor = vscode.window.activeTextEditor;
       if (editor) Paredit.selectBackwardSexp(editor);
+    }),
+    vscode.commands.registerCommand("beguile.tabulateLine", () => {
+      const editor = vscode.window.activeTextEditor;
+      if (editor) {
+        Formatter.indentCurrentLine(editor);
+      }
     })
   );
 
