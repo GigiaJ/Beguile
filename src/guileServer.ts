@@ -16,7 +16,7 @@ export class GuileServer {
     }
 
     public async start(extensionPath: string): Promise<number> {
-        if (this.isRunning) return -1;
+        if (this.isRunning) return this.port;
         const serverPath = path.join(extensionPath, "guile/server.scm");
 
         const portPromise = new Promise<number>((resolve, reject) => {
@@ -29,43 +29,23 @@ export class GuileServer {
         });
 
         this.port = await portPromise;
-
         this.outputChannel.appendLine(`Spawning: guile ${serverPath} --port ${this.port}`);
 
         this.process = cp.spawn("guile", [serverPath, "--port", String(this.port)], {
             cwd: extensionPath
         });
-        this.isRunning = true;
 
-        console.log("Guile server running on port", this.port);
-
-
-        this.isRunning = true;
-
-        if (this.process.stdout) {
-            this.process.stdout.on('data', (data) => {
-                this.outputChannel.append(`${data}`);
+        return new Promise((resolve) => {
+            this.process!.stdout?.on('data', (data) => {
+                const msg = data.toString();
+                this.outputChannel.append(msg);
+                if (msg.includes("(Beguile Server Ready)")) {
+                    this.isRunning = true;
+                    resolve(this.port);
+                }
             });
-        }
-
-        if (this.process.stderr) {
-            this.process.stderr.on('data', (data) => {
-                this.outputChannel.append(`ERR: ${data}`);
-            });
-        }
-
-        this.process.on('close', (code) => {
-            this.outputChannel.appendLine(`Guile Server stopped (Exit Code: ${code})`);
-            this.isRunning = false;
-            this.process = null;
+            this.process!.on('error', () => resolve(-1));
         });
-
-        this.process.on('error', (err) => {
-            this.outputChannel.appendLine(`FAILED TO START GUILE: ${err.message}`);
-            vscode.window.showErrorMessage(`Beguile: Could not start Guile process. Is 'guile' in your PATH?`);
-            this.isRunning = false;
-        });
-        return this.port;
     }
 
     public stop() {
