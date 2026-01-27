@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { GuileClient } from '../guileClient';
-import { LispParser } from '../paredit/parser';
+import { LispParser } from '../parser';
 
 export class SchemeCompletionProvider implements vscode.CompletionItemProvider {
 
