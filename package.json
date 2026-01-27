@@ -14,26 +14,137 @@
     "onLanguage:scheme",
     "onCommand:beguile.formatDocument"
   ],
-
   "main": "./out/extension.js",
+  "configuration": {
+    "title": "Beguile",
+    "properties": {
+      "beguile.guileCommand": {
+        "type": "string",
+        "default": "guile",
+        "description": "Command to start the Guile server. On Guix, try: 'guix shell guile guile-json -- guile'"
+      }
+    }
+  },
   "contributes": {
     "languages": [
       {
         "id": "scheme",
-        "extensions": [".scm", ".ss"],
-        "aliases": ["Scheme"]
+        "configuration": "./language-configuration.json",
+        "extensions": [
+          ".scm",
+          ".ss"
+        ],
+        "aliases": [
+          "Scheme"
+        ]
       }
     ],
     "commands": [
       {
+        "command": "beguile.restartServer",
+        "title": "Guile: Restart Server"
+      },
+      {
+        "command": "beguile.eval",
+        "title": "Beguile: Evaluate Selection / Top Level Form"
+      },
+      {
         "command": "beguile.formatDocument",
         "title": "Beguile: Format Document"
+      },
+      {
+        "command": "beguile.paredit.slurpForward",
+        "title": "Paredit: Slurp Forward"
+      },
+      {
+        "command": "beguile.paredit.barfForward",
+        "title": "Paredit: Barf Forward"
+      },
+      {
+        "command": "beguile.paredit.wrap",
+        "title": "Paredit: Wrap Selection"
+      },
+      {
+        "command": "beguile.forwardSexp",
+        "title": "Beguile: Move Forward S-Expression"
+      },
+      {
+        "command": "beguile.backwardSexp",
+        "title": "Beguile: Move Backward S-Expression"
+      },
+      {
+        "command": "beguile.paredit.splice",
+        "title": "Paredit: Splice S-expression"
+      },
+      {
+        "command": "beguile.selectForwardSexp",
+        "title": "Paredit: Select Forward S-Expression"
+      },
+      {
+        "command": "beguile.selectBackwardSexp",
+        "title": "Paredit: Select Backward S-Expression"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "beguile.forwardSexp",
+        "key": "ctrl+right",
+        "mac": "alt+right",
+        "when": "editorTextFocus && editorLangId == scheme"
+      },
+      {
+        "command": "beguile.backwardSexp",
+        "key": "ctrl+left",
+        "mac": "alt+left",
+        "when": "editorTextFocus && editorLangId == scheme"
+      },
+      {
+        "command": "beguile.paredit.slurpForward",
+        "key": "ctrl+alt+right",
+        "mac": "ctrl+alt+right",
+        "when": "editorTextFocus && editorLangId == scheme"
+      },
+      {
+        "command": "beguile.paredit.barfForward",
+        "key": "ctrl+alt+left",
+        "mac": "ctrl+alt+left",
+        "when": "editorTextFocus && editorLangId == scheme"
+      },
+      {
+        "command": "beguile.paredit.wrap",
+        "key": "ctrl+shift+9",
+        "when": "editorTextFocus && editorLangId == scheme"
+      },
+      {
+        "command": "beguile.paredit.splice",
+        "key": "alt+s",
+        "mac": "alt+s",
+        "when": "editorTextFocus && editorLangId == scheme"
+      },
+      {
+        "command": "beguile.selectForwardSexp",
+        "key": "ctrl+shift+right",
+        "mac": "alt+shift+right",
+        "when": "editorTextFocus && editorLangId == scheme"
+      },
+      {
+        "command": "beguile.selectBackwardSexp",
+        "key": "ctrl+shift+left",
+        "mac": "alt+shift+left",
+        "when": "editorTextFocus && editorLangId == scheme"
+      },
+      {
+        "command": "beguile.eval",
+        "key": "ctrl+enter",
+        "mac": "cmd+enter",
+        "when": "editorTextFocus && editorLangId == scheme"
       }
     ],
     "configurationDefaults": {
       "[scheme]": {
         "editor.defaultFormatter": "jaggar.beguile",
-        "editor.formatOnSave": true
+        "editor.formatOnSave": true,
+        "editor.wordSeparators": "`()[]{}|;\\\",'"
       }
     }
   },
