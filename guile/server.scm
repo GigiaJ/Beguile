@@ -222,6 +222,17 @@
       ("beguile/definition" (make-response id (get-definition-location (assoc-ref params "symbol") (or (assoc-ref params "code") "") (vector->list (assoc-ref params "context")))))
       (_ (make-response id "Unknown Method")))))
 
+(define (parse-port)
+  (match (command-line)
+    ((_ _ "--port" p)
+     (string->number p))
+
+    ((_ _ p)
+     (string->number p))
+
+    (_
+     (error "No port provided to server.scm"))))
+
 (define (run-server port)
   (let ((s (socket PF_INET SOCK_STREAM 0)))
     (setsockopt s SOL_SOCKET SO_REUSEADDR 1)
@@ -241,5 +252,5 @@
                     (display resp-str port) (newline port) (force-output port) (loop))))))
           (lambda (key . args) (log-msg (format #f "Crash: ~a ~a" key args))))
         (close port)))))
-
-(run-server 37146)
+        
+(run-server (parse-port))
