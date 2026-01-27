@@ -12,7 +12,7 @@ export class Analyzer {
         const root = ASTManager.getTree(doc);
         const offset = doc.offsetAt(position);
 
-        let node = LispParser.getNodeAtPosition(root, offset);
+        let node: ASTNode | null | undefined = LispParser.getNodeAtPosition(root, offset);
         const stack: string[] = [];
 
         while (node) {
