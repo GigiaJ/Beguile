@@ -33,11 +33,9 @@ export class LispParser {
             const char = text[i];
 
             if (char === ';') {
-                // read until newline
                 const start = i;
                 let end = text.indexOf('\n', i);
                 if (end === -1) end = text.length;
-                else end++;
                 current.children.push({
                     type: NodeType.Comment,
                     start,
