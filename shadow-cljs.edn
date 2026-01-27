@@ -1,0 +1,11 @@
+;; shadow-cljs configuration
+{:source-paths
+ ["src"]
+
+ :dependencies [[rewrite-clj/rewrite-clj "1.1.47"]]
+
+ :builds
+ {:formatter
+  {:target :node-library
+   :exports {:format_string beguile.formatter/format-string}
+   :output-to "out/formatter.js"}}}
