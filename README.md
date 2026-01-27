@@ -43,6 +43,8 @@ Windows users should use WSL. Native Guile experience on Windows is going to be 
     - splice
     - wrap
 
+![Demo](./example/demo.gif)
+
 
 ### Future plans:
 In the future, I'll likely rewrite this into Clojurescript. Typescript was just far easier as there are far more docs on building an extension in Typescript.
@@ -53,5 +55,8 @@ In the future, I'll likely rewrite this into Clojurescript. Typescript was just 
 - Clojure-like usage examples in the hover behavior would be amazing, but I don't think Guile has the same infrastructure in place to easily do so.
 - Pop-ups for if the server crashed
 - Preload the system library and some helper libraries
+- Bind the version to the tag more cleanly...
+- Tab should auto-adjust the tabulated line to the nearest previous indentation (so a command to overwrite the default?)
+- forwardSexp and backwardSexp can get VERY confused if there are unmatched symbols (such as quotes)
 
 For now though, this is the most complete Guile writing experience for VS Code.
