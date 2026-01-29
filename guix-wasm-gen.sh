@@ -1,0 +1,1 @@
+guix shell tree-sitter-cli docker node -- tree-sitter build --wasm
