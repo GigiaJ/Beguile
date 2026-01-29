@@ -9,10 +9,6 @@
             ["fs" :as fs]
             ["os" :as os]))
 
-
-(when (exists? js/global)
-  (set! (.-clojure js/global) cljs))
-
 (defonce output-channel
   (.createOutputChannel (.-window vscode) "Beguile Logs"))
 
