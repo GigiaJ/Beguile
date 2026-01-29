@@ -6,7 +6,7 @@ should have a similar option that isn't just EMacs.
 
 Prerequisites:
 - Guile installed on the host system (similar to how the neovim extension works) 
-    - Guix          ```guix install guile``` (GuixSD and the package manager come with Guile by default)
+    - Guix          GuixSD and the package manager come with Guile by default
     - Debian:       ```sudo apt install guile-3.0```
     - Fedora        ```sudo dnf install guile```
     - Arch          ```sudo pacman -S guile```
@@ -21,6 +21,16 @@ Prerequisites:
     - OpenSUSE     ```sudo zypper install guile-json```
     - Mac (Brew)   ```brew install guile-json```
     - pkgsrc       ```pkgin install guile-json```
+- Guix installed (easiest way to supply the guix libraries to Guile for clean, opinionated formatting 
+                  by one of the language's maintainers and creator of Guix)
+    - Guix          GuixSD and the package manager come with Guile by default
+    - Debian:       ```sudo apt install guix```
+    - Fedora        ```sudo dnf install guix```
+    - Arch          ```sudo pacman -S guix```
+    - OpenSUSE     ```sudo zypper install guix```
+    - Mac (Brew)   ```brew install guix```
+    - pkgsrc       ```pkgin install guix```
+
 
 Windows users should use WSL. Native Guile experience on Windows is going to be unpleasant.
 
@@ -28,8 +38,8 @@ Windows users should use WSL. Native Guile experience on Windows is going to be 
 - Simple REPL
 - LSP (uses guile under the hood for evaluation and for REPL)
 - Hover docs
+- Syntax highlighting
 - Auto-completion (Intellisense)
-- AST
 - Auto-formatter on save
 - Rainbow parenthesis
 - Go To (on hover + control + click) definition
@@ -38,6 +48,10 @@ Windows users should use WSL. Native Guile experience on Windows is going to be 
     - backSExpression
     - selectedForwardSExpression
     - selectedBackSExpression
+- Written in CLJS and Guile
+
+
+#### will re-add
     - forwardSlurp
     - forwardBarf
     - splice
@@ -50,13 +64,15 @@ Windows users should use WSL. Native Guile experience on Windows is going to be 
 In the future, I'll likely rewrite this into Clojurescript. Typescript was just far easier as there are far more docs on building an extension in Typescript.
 - More heavyweight REPL experience (CIDER maybe).
 - Expand on the LSP and make the evaluation more intelligent.
-- In Clojurescript (so easier to expand on and more familiar syntax to the main audience of this plugin)
 - Add evaluation for Guix GExpressions (this may make more sense splitting out and making an add-on plugin for)
 - Clojure-like usage examples in the hover behavior would be amazing, but I don't think Guile has the same infrastructure in place to easily do so.
 - Pop-ups for if the server crashed
 - Preload the system library and some helper libraries
 - Bind the version to the tag more cleanly...
-- Tab should auto-adjust the tabulated line to the nearest previous indentation (so a command to overwrite the default?)
 - forwardSexp and backwardSexp can get VERY confused if there are unmatched symbols (such as quotes)
+- Macro expansion preview
+- Linting
+- Syntax checking
+
 
 For now though, this is the most complete Guile writing experience for VS Code.
