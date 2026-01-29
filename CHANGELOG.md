@@ -7,3 +7,10 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 ## [Unreleased]
 
 - Initial release
+
+
+## [0.1.0]
+
+- Rewritten core extension into ClojureScript
+- Added Tree Sitter for AST
+- Swapped to using Guix library for formatting
