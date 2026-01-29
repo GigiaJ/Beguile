@@ -1,11 +1,17 @@
 (ns extension
   (:require [promesa.core :as p]
+             [goog.object :as gobj]
+            [clojure.string :as str]
             ["vscode" :as vscode]
             ["path" :as path]
             ["child_process" :as cp]
             ["net" :as net]
             ["fs" :as fs]
             ["os" :as os]))
+
+
+(when (exists? js/global)
+  (set! (.-clojure js/global) cljs))
 
 (defonce output-channel
   (.createOutputChannel (.-window vscode) "Beguile Logs"))
@@ -70,15 +76,15 @@
          (fn [data]
            (swap! input-buffer str (.toString data))
            (let [raw @input-buffer]
-             (when (clojure.string/includes? raw "\n")
-               (let [parts (clojure.string/split raw #"\n" -1)]
+             (when (str/includes? raw "\n")
+               (let [parts (str/split raw #"\n" -1)]
                  (dotimes [i (dec (count parts))]
                    (let [line (nth parts i)]
-                     (when-not (clojure.string/blank? line)
+                     (when-not (str/blank? line)
                        (try
                          (let [response (js/JSON.parse line)
-                               id (.-id response)
-                               result (.-result response)]
+                               id (gobj/get response "id") 
+                               result (gobj/get response "result")]
                            (when-let [resolver (get @pending-requests id)]
                              (p/resolve! resolver result)
                              (swap! pending-requests dissoc id)))
@@ -105,7 +111,7 @@
            (fn [data]
              (let [msg (.toString data)]
                (log! (str "SERVER OUT: " msg))
-               (when (clojure.string/includes? msg "Ready")
+               (when (str/includes? msg "Ready")
                  (connect-to-server! port)))))
 
       (.on (.-stderr proc) "data"
@@ -146,8 +152,8 @@
     "character" 1
     "symbol" (cond
                (contains? guix-keywords text) 7
-               (clojure.string/starts-with? text "#~") 8
-               (clojure.string/starts-with? text "#$") 8
+               (str/starts-with? text "#~") 8
+               (str/starts-with? text "#$") 8
                :else nil)
     nil))
 
@@ -289,6 +295,10 @@
                     :else (.-startIndex p))
                   nil)))))))))
 
+
+
+
+
 (defn navigate-sexp [direction select?]
   (let [editor (.-activeTextEditor (.-window vscode))]
     (when (and editor @parser-ref)
@@ -398,7 +408,7 @@
       (.push (.-subscriptions context) sub))))
 
 (defn activate [context]
-  (.show output-channel true)
+  (.show output-channel false)
   (log! "=== Beguile Activation Started ===")
 
   (init-parser! context)
@@ -413,7 +423,7 @@
          (vscode/window.onDidChangeTextEditorSelection
           (fn [e] (update-scope-highlight (.-textEditor e)))))
 
-  (js/undefined))
+  nil)
 
 (defn deactivate []
   (when-let [sock @client-socket]
@@ -423,4 +433,4 @@
   (when-let [proc @server-proc]
     (.kill proc "SIGKILL"))
 
-  (js/undefined))
+  nil)
