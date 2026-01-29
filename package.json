@@ -2,7 +2,7 @@
   "name": "beguile",
   "displayName": "Beguile",
   "description": "Full Feature Guile Scheme VS Code Extension",
-  "version": "0.0.7",
+  "version": "0.1.0",
   "publisher": "GigiaJ",
   "repository": {
     "type": "git",
@@ -47,7 +47,7 @@
           "guile"
         ],
         "assets": [
-          "tree-sitter-scheme/tree-sitter-scheme.wasm"
+          "resources/tree-sitter-scheme.wasm"
         ]
       }
     ],
