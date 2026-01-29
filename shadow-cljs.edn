@@ -1,11 +1,21 @@
-;; shadow-cljs configuration
-{:source-paths
- ["src"]
+;; shadow-cljs
+ {:source-paths
+  ["src"]
 
- :dependencies [[rewrite-clj/rewrite-clj "1.1.47"]]
+  :dependencies
+  [[rewrite-clj/rewrite-clj "1.1.47"]
+   [funcool/promesa "11.0.678"]]
 
- :builds
- {:formatter
-  {:target :node-library
-   :exports {:format_string beguile.formatter/format-string}
-   :output-to "out/formatter.js"}}}
+  :npm-deps
+  {"web-tree-sitter" "0.20.8"}
+
+  :js-options
+  {:resolve
+   {"web-tree-sitter" {:target :esm}}}
+
+  :builds
+  {:extension
+   {:target :node-library
+    :output-to "out/extension.js"
+    :exports {:activate extension/activate
+              :deactivate extension/deactivate}}}}
