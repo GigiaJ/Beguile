@@ -35,8 +35,8 @@ jobs:
           distribution: temurin
           java-version: 21
 
-      - name: Compile Shadow Formatter
-        run: npx shadow-cljs compile formatter
+      - name: Compile Shadow CLJS
+        run: npx shadow-cljs compile extension
 
       - name: Package Extension
         run: npx @vscode/vsce package --no-dependencies
