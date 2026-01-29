@@ -15,4 +15,5 @@
    {:target :node-library
     :output-to "out/extension.js"
     :exports {:activate extension/activate
-              :deactivate extension/deactivate}}}}
+              :deactivate extension/deactivate}
+    :compiler-options {:optimizations :simple}}}}
