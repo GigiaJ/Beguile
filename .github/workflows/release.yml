@@ -38,9 +38,6 @@ jobs:
       - name: Compile Shadow Formatter
         run: npx shadow-cljs compile formatter
 
-      - name: Compile Extension
-        run: pnpm run compile
-
       - name: Package Extension
         run: npx @vscode/vsce package --no-dependencies
 
