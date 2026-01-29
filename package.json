@@ -2,7 +2,7 @@
   "name": "beguile",
   "displayName": "Beguile",
   "description": "Full Feature Guile Scheme VS Code Extension",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "publisher": "GigiaJ",
   "repository": {
     "type": "git",
@@ -15,8 +15,7 @@
     "Programming Languages"
   ],
   "activationEvents": [
-    "onLanguage:scheme",
-    "onCommand:beguile.formatDocument"
+    "onLanguage:scheme"
   ],
   "main": "./out/extension.js",
   "configuration": {
@@ -34,12 +33,21 @@
       {
         "id": "scheme",
         "configuration": "./language-configuration.json",
+        "configurationDefaults": {
+          "[scheme]": {
+            "editor.matchBrackets": "never"
+          }
+        },
         "extensions": [
           ".scm",
           ".ss"
         ],
         "aliases": [
-          "Scheme"
+          "Scheme",
+          "guile"
+        ],
+        "assets": [
+          "tree-sitter-scheme/tree-sitter-scheme.wasm"
         ]
       }
     ],
@@ -142,11 +150,6 @@
         "key": "ctrl+enter",
         "mac": "cmd+enter",
         "when": "editorTextFocus && editorLangId == scheme"
-      },
-      {
-        "command": "beguile.tabulateLine",
-        "key": "tab",
-        "when": "editorTextFocus && editorLangId == 'scheme' && !hasOtherSuggestions"
       }
     ],
     "configurationDefaults": {
@@ -173,11 +176,13 @@
     "@vscode/test-electron": "^2.5.2",
     "eslint": "^9.39.2",
     "shadow-cljs": "^3.3.5",
+    "tree-sitter-cli": "^0.26.3",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.52.0"
   },
   "packageManager": "pnpm@10.28.0+sha512.05df71d1421f21399e053fde567cea34d446fa02c76571441bfc1c7956e98e363088982d940465fd34480d4d90a0668bc12362f8aa88000a64e83d0b0e47be48",
   "dependencies": {
+    "web-tree-sitter": "^0.26.3",
     "ws": "^8.19.0"
   }
 }
