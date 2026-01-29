@@ -21,6 +21,8 @@
   "files": [
     "out",
     "resources",
+    "node_modules",
+    "guile",
     "package.json",
     "language-configuration.json",
     "README.md",
@@ -36,6 +38,9 @@
       }
     }
   },
+  "extensionKind": [
+    "workspace"
+  ],
   "contributes": {
     "languages": [
       {
@@ -170,7 +175,7 @@
   },
   "scripts": {
     "vscode:prepublish": "pnpm run compile",
-    "compile": "shadow-cljs compile extension",
+    "compile": "npx shadow-cljs release extension",
     "watch": "npx shadow-cljs watch extension",
     "pretest": "pnpm run compile && pnpm run lint",
     "lint": "eslint src",
