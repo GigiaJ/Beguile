@@ -6,7 +6,10 @@
              (ice-9 session)
              (ice-9 regex)
              (system vm program)
-             (srfi srfi-1))
+             (srfi srfi-1)
+             (guix scripts style)
+             (guix ui)
+             (guix read-print))
 
 (define (log-msg msg)
   (let ((port (current-error-port)))
@@ -28,6 +31,32 @@
   (if (string-prefix? "/" filename)
       filename
       (search-path %load-path filename)))
+
+(define (format-code code-str)
+  (catch #t
+    (lambda ()
+      (call-with-output-string
+        (lambda (out-port)
+          (call-with-input-string code-str
+            (lambda (in-port)
+              (let loop ()
+                (let ((expr (read-with-comments in-port)))
+                  (unless (eof-object? expr)
+                    (cond
+                     ((vertical-space? expr)
+                      (pretty-print-with-comments out-port expr
+                                                  #:format-vertical-space 
+                                                  (lambda (_) (vertical-space 2))))
+                     
+                     (else
+                      (pretty-print-with-comments out-port expr 
+                                                  #:format-vertical-space canonicalize-vertical-space)))
+                    
+                    (loop)))))))))
+    (lambda (key . args)
+      (log-msg (format #f "Formatting Failed: ~a" args))
+      #f)))
+
 
 (define (module-name->path mod-name)
   (catch #t
@@ -217,7 +246,12 @@
     (match method
       ("beguile/getIndent" (make-response id (get-indent-info (assoc-ref params "symbol"))))
       ("beguile/completion" (make-response id (get-completions (assoc-ref params "prefix"))))
-      ("beguile/eval" (make-response id (eval-code (assoc-ref params "code") (assoc-ref params "module")))) 
+      ("beguile/eval" (make-response id (eval-code (assoc-ref params "code") (assoc-ref params "module"))))
+      ("beguile/format" 
+       (let ((formatted (format-code (assoc-ref params "code"))))
+         (if formatted
+             (make-response id formatted)
+             (make-response id (assoc-ref params "code")))))
       ("beguile/hover" (make-response id (get-docs-with-context (assoc-ref params "symbol") (or (assoc-ref params "code") "") (vector->list (assoc-ref params "context")))))
       ("beguile/definition" (make-response id (get-definition-location (assoc-ref params "symbol") (or (assoc-ref params "code") "") (vector->list (assoc-ref params "context")))))
       (_ (make-response id "Unknown Method")))))
@@ -241,7 +275,7 @@
     
     (display "(Beguile Server Ready)")
     (newline)
-    (force-output) ;; Critical: Flush the buffer!
+    (force-output)
 
     (log-msg (format #f "Listening on port ~a..." port))
     
