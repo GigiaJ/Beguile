@@ -34,7 +34,7 @@ jobs:
         run: npx shadow-cljs compile extension
 
       - name: Package Extension
-        run: npx @vscode/vsce package --no-dependencies
+        run: npx @vscode/vsce package
 
       - name: Get Version
         id: get_version
