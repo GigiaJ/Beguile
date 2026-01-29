@@ -18,6 +18,14 @@
     "onLanguage:scheme"
   ],
   "main": "./out/extension.js",
+  "files": [
+    "out",
+    "resources",
+    "package.json",
+    "language-configuration.json",
+    "README.md",
+    "LICENSE"
+  ],
   "configuration": {
     "title": "Beguile",
     "properties": {
@@ -47,7 +55,7 @@
           "guile"
         ],
         "assets": [
-          "resources/tree-sitter-scheme.wasm"
+          "./resources/tree-sitter-scheme.wasm"
         ]
       }
     ],
