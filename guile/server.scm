@@ -4,7 +4,9 @@
              (ice-9 threads)
              (ice-9 documentation)
              (ice-9 session)
+             (ice-9 control)
              (ice-9 regex)
+             (ice-9 vlist)
              (system vm program)
              (srfi srfi-1)
              (guix scripts style)
@@ -173,8 +175,6 @@
                                 (variable-bound? var))
                            (let ((loc (get-location-for-obj (variable-ref var))))
                              (if loc loc
-                                 ;; found but no source line.
-                                 ;; return the module file itself (line 0).
                                  (let ((mod-file (module-name->path mod-name)))
                                    (if mod-file
                                        (begin
@@ -221,7 +221,6 @@
                                  (variable-bound? var))
                             (let ((loc (get-location-for-obj (variable-ref var))))
                               (if loc loc
-                                  ;; open module file
                                   (let ((mod-file (module-name->path mod-name)))
                                     (if mod-file
                                         `((file unquote mod-file)
@@ -307,7 +306,26 @@
       '((style . "align"))))
 
 (define (get-completions prefix)
-  '())
+  (if (or (not prefix)
+          (string-null? prefix))
+      '()
+      (let ((pattern (string-append "^"
+                                    (regexp-quote prefix)))
+            (module (current-module)))
+        (catch #t
+               (lambda ()
+                 (let ((names '()))
+                   (module-for-each (lambda (sym var)
+                                      (let ((s (symbol->string sym)))
+                                        (if (string-match pattern s)
+                                            (set! names
+                                                  (cons s names))))) module)
+                   (let ((sorted (sort (delete-duplicates names) string<?)))
+                     (if (> (length sorted) 100)
+                         (take sorted 100) sorted))))
+               (lambda (key . args)
+                 (log-msg (format #f "Crawl failed: ~a" args))
+                 '())))))
 
 (define (eval-code code-str module-str)
   "Eval not implemented")
@@ -325,9 +343,11 @@
       ("beguile/getIndent" (make-response id
                                           (get-indent-info (assoc-ref params
                                                             "symbol"))))
-      ("beguile/completion" (make-response id
-                                           (get-completions (assoc-ref params
-                                                             "prefix"))))
+      ("beguile/completion" (let ((prefix (assoc-ref params "prefix")))
+                              (make-response id
+                                             (get-completions (if (string?
+                                                                   prefix)
+                                                                  prefix "")))))
       ("beguile/eval" (make-response id
                                      (eval-code (assoc-ref params "code")
                                                 (assoc-ref params "module"))))
@@ -353,10 +373,15 @@
                                                                          params
                                                                          "code")
                                                                         "")
-                                                                    (vector->list
-                                                                     (assoc-ref
-                                                                      params
-                                                                      "context")))))
+                                                                    (let ((ctx
+                                                                           (assoc-ref
+                                                                            params
+                                                                            "context")))
+                                                                      (if (vector?
+                                                                           ctx)
+                                                                          (vector->list
+                                                                           ctx)
+                                                                          '())))))
       (_ (make-response id "Unknown Method")))))
 
 (define (parse-port)
